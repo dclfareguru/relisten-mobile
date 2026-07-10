@@ -36,7 +36,7 @@ def max_extent(img, thresh=40, step=2):
 
 
 def main():
-    src = Image.open(os.path.join(HERE, "ttb_crossed_guitars_1024.png")).convert("RGBA")
+    src = Image.open(os.path.join(HERE, "ttb_crossed_guitars.png")).convert("RGBA")
     art = src.crop(src.getchannel("A").getbbox())
     centered = center_on(max(art.size) + 8, art)
     radius = max_extent(centered)
