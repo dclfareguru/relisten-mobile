@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Adaptive-icon BACKGROUND layer: deep stage-dark with a soft spotlight glow
+       and faint vinyl/tape-reel grooves. -->
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.44" r="0.75">
+      <stop offset="0" stop-color="#2b3350"/>
+      <stop offset="0.55" stop-color="#1b2136"/>
+      <stop offset="1" stop-color="#10121d"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="6">
+    <circle cx="512" cy="512" r="180"/>
+    <circle cx="512" cy="512" r="260"/>
+    <circle cx="512" cy="512" r="340"/>
+    <circle cx="512" cy="512" r="420"/>
+    <circle cx="512" cy="512" r="500"/>
+  </g>
+</svg>
