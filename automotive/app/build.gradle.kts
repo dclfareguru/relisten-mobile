@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.dynamixwebdesign.relisten.car"
+        applicationId = "com.ttblisten"
         minSdk = 29
         targetSdk = 34
         versionCode = 1

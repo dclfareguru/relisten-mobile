@@ -9,8 +9,9 @@ model as CarPlay), so no React Native code runs in the car.
 Default landing tab is **Tedeschi Trucks Band**, with an **All Artists** tab for the full
 Relisten catalog and an **On This Day** tab.
 
-- `applicationId`: `com.dynamixwebdesign.relisten.car` (deliberately distinct from the
-  official `net.relisten.android`; this is an unofficial private-distribution fork)
+- `applicationId`: `com.ttblisten` (deliberately distinct from the official
+  `net.relisten.android`; this is an unofficial private-distribution fork — the package
+  name is registered to the owner's Play developer account)
 - Stack: Media3 (ExoPlayer + MediaLibrarySession), OkHttp, kotlinx.serialization, DataStore
 - Browse hierarchy mirrors the iOS CarPlay design (`relisten/carplay/`), and the playback
   service is modeled on `modules/relisten-audio-player/android`
