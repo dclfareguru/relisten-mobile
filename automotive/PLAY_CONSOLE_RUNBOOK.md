@@ -18,7 +18,8 @@ verification (can take a few days) on step 1 — start that early.
    - Name: `Relisten Car (unofficial)` (anything works; it's private).
    - App or game: App. Free.
 2. Complete the **App content** declarations (Dashboard → App content):
-   - Privacy policy: link to this fork on GitHub (e.g. the automotive/README.md URL).
+   - Privacy policy: link to this fork on GitHub:
+     <https://github.com/dclfareguru/relisten-mobile/blob/automotive/automotive/README.md>
    - Ads: No. Data safety: no data collected/shared (the app calls api.relisten.net and
      archive.org anonymously; there are no accounts, no analytics).
    - Content rating questionnaire: Music/streaming answers, no user content.
