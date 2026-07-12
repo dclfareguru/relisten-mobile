@@ -18,6 +18,7 @@ import com.dynamixwebdesign.relisten.car.browse.BrowseTree
 import com.dynamixwebdesign.relisten.car.browse.MediaId
 import com.dynamixwebdesign.relisten.car.domain.QueueBuilder
 import com.dynamixwebdesign.relisten.car.resumption.PersistedQueue
+import com.dynamixwebdesign.relisten.car.resumption.PersistedTrack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -104,11 +105,26 @@ class RelistenCarPlaybackService : MediaLibraryService() {
     private fun persistQueueState(player: Player) {
         val mediaId = player.currentMediaItem?.mediaId ?: return
         val trackId = MediaId.parse(mediaId) as? MediaId.Track ?: return
+        // Snapshot the whole playlist so resumption after reboot needs no network.
+        val tracks = (0 until player.mediaItemCount).mapNotNull { index ->
+            val item = player.getMediaItemAt(index)
+            val url = item.localConfiguration?.uri?.toString() ?: return@mapNotNull null
+            PersistedTrack(
+                mediaId = item.mediaId,
+                title = item.mediaMetadata.title?.toString() ?: "Unknown",
+                artist = item.mediaMetadata.artist?.toString(),
+                albumTitle = item.mediaMetadata.albumTitle?.toString(),
+                durationMs = item.mediaMetadata.durationMs,
+                trackNumber = item.mediaMetadata.trackNumber,
+                url = url,
+            )
+        }
         val state = PersistedQueue(
             showUuid = trackId.showUuid,
             sourceUuid = trackId.sourceUuid,
             trackIndex = player.currentMediaItemIndex,
             positionMs = player.currentPosition.coerceAtLeast(0),
+            tracks = tracks,
         )
         val app = application as RelistenCarApp
         serviceScope.launch { app.queueStateStore.save(state) }

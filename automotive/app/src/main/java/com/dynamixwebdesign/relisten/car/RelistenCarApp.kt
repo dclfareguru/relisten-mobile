@@ -1,12 +1,16 @@
 package com.dynamixwebdesign.relisten.car
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.dynamixwebdesign.relisten.car.api.RelistenApi
 import com.dynamixwebdesign.relisten.car.api.RelistenRepository
 import com.dynamixwebdesign.relisten.car.resumption.QueueStateStore
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class RelistenCarApp : Application() {
     lateinit var okHttp: OkHttpClient
@@ -45,7 +49,18 @@ class RelistenCarApp : Application() {
                 }
             }
             .build()
-        repository = RelistenRepository(RelistenApi(okHttp))
+        // API calls fail fast (streaming keeps the default, patient client above).
+        val apiClient = okHttp.newBuilder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .build()
+        repository = RelistenRepository(RelistenApi(apiClient, ::hasValidatedNetwork))
         queueStateStore = QueueStateStore(this)
+    }
+
+    private fun hasValidatedNetwork(): Boolean {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 }

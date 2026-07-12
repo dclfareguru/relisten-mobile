@@ -11,9 +11,14 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Thin suspend client for api.relisten.net. Relies on the shared OkHttp disk cache for
- * offline resilience: a network failure falls back to any cached copy, however stale.
+ * offline resilience: when the device is offline (or a request fails) it falls back to
+ * any cached copy, however stale. [isOnline] short-circuits straight to the cache so a
+ * car waking up without connectivity browses instantly instead of waiting out timeouts.
  */
-class RelistenApi(private val client: OkHttpClient) {
+class RelistenApi(
+    private val client: OkHttpClient,
+    private val isOnline: () -> Boolean = { true },
+) {
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -36,23 +41,28 @@ class RelistenApi(private val client: OkHttpClient) {
 
     private suspend inline fun <reified T> get(path: String): T = withContext(Dispatchers.IO) {
         val url = BASE_URL + path
-        val body = try {
-            executeForBody(Request.Builder().url(url).build())
-        } catch (e: IOException) {
-            executeForBody(
-                Request.Builder()
-                    .url(url)
-                    .cacheControl(
-                        CacheControl.Builder()
-                            .onlyIfCached()
-                            .maxStale(365, TimeUnit.DAYS)
-                            .build()
-                    )
-                    .build()
-            )
+        val body = if (!isOnline()) {
+            executeForBody(cacheOnlyRequest(url))
+        } else {
+            try {
+                executeForBody(Request.Builder().url(url).build())
+            } catch (e: IOException) {
+                executeForBody(cacheOnlyRequest(url))
+            }
         }
         json.decodeFromString<T>(body)
     }
+
+    private fun cacheOnlyRequest(url: String): Request =
+        Request.Builder()
+            .url(url)
+            .cacheControl(
+                CacheControl.Builder()
+                    .onlyIfCached()
+                    .maxStale(365, TimeUnit.DAYS)
+                    .build()
+            )
+            .build()
 
     private fun executeForBody(request: Request): String {
         client.newCall(request).execute().use { response ->

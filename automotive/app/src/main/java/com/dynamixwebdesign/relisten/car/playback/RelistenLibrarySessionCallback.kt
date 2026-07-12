@@ -128,8 +128,24 @@ class RelistenLibrarySessionCallback(
     ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> = scope.future {
         val saved = queueStateStore.load()
             ?: throw UnsupportedOperationException("nothing to resume")
-        Log.i(TAG, "playback resumption show=${saved.showUuid} track=${saved.trackIndex}")
-        val queue = queueBuilder.showQueue(saved.showUuid, saved.sourceUuid)
+        Log.i(TAG, "playback resumption show=${saved.showUuid} track=${saved.trackIndex} persistedTracks=${saved.tracks.size}")
+        // Rebuild from the persisted snapshot — zero network, so resumption works the moment
+        // the car wakes up. Fall back to the API only for old snapshots without track data.
+        val queue = if (saved.tracks.isNotEmpty()) {
+            saved.tracks.map { track ->
+                MediaItemFactory.persistedTrack(
+                    mediaId = track.mediaId,
+                    title = track.title,
+                    artistName = track.artist,
+                    albumTitle = track.albumTitle,
+                    durationMs = track.durationMs,
+                    trackNumber = track.trackNumber,
+                    streamUrl = track.url,
+                )
+            }
+        } else {
+            queueBuilder.showQueue(saved.showUuid, saved.sourceUuid)
+        }
         check(queue.isNotEmpty()) { "resumption queue is empty" }
         MediaSession.MediaItemsWithStartPosition(
             queue,

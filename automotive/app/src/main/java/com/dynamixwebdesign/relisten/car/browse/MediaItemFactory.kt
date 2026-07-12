@@ -98,6 +98,25 @@ object MediaItemFactory {
         uri = Uri.parse(streamUrl),
     )
 
+    /** Rebuilds a playable track from persisted resumption state (no API objects involved). */
+    fun persistedTrack(
+        mediaId: String,
+        title: String,
+        artistName: String?,
+        albumTitle: String?,
+        durationMs: Long?,
+        trackNumber: Int?,
+        streamUrl: String,
+    ): MediaItem = playable(
+        mediaId,
+        title,
+        artistName = artistName,
+        albumTitle = albumTitle,
+        trackNumber = trackNumber,
+        durationMs = durationMs,
+        uri = Uri.parse(streamUrl),
+    )
+
     fun error(parentId: String, message: String = "Couldn't load — check the connection"): MediaItem =
         MediaItem.Builder()
             .setMediaId(MediaId.Error(parentId).encode())
